@@ -7,8 +7,8 @@ import numpy as np
 
 class Predict():
     def __init__(self,
-                 model='models/solution1_800-1000_no_datagen',
-                 class_index='models/class.csv'):
+                 model='gaiacare-front/models/solution1_800-1000_no_datagen',
+                 class_index='gaiacare-front/models/class.csv'):
         #self.image = np.expand_dims(self.load_and_preprocess_image(image_path), axis=0)
         self.model = models.load_model(model)
         self.class_index = pd.read_csv(class_index).set_index(
@@ -34,4 +34,4 @@ if __name__ == "__main__":
 
     pred = Predict()
 
-    print(pred.predict_class('tests/test.JPG'))
+    print(pred.predict_class('gaiacare-front/tests/test.JPG'))
