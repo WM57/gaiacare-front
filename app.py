@@ -10,50 +10,75 @@ import requests
 import json
 
 
+file_ = open("logo.png", "rb")
+contents = file_.read()
+logo_url = base64.b64encode(contents).decode("utf-8")
+file_.close()
+
+st.markdown(
+    f'<div class="clogo"><div class="logo"><img src="data:image/png;base64,{logo_url}"></div></div>',
+    unsafe_allow_html=True,
+)
 
 
-st.set_option('public_filetypes', 'jpg, csv, png, jpeg')
 
+components.html("""
 
-components.html(
-    """
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap" rel="stylesheet">
+
+<h1 class="title">GaïaCare</h1>
 
 <div class='wrap' style='background:#fff;'>
-<div class='logo'></div>
-<h1 class='title'>GaïaCare</h1>
 
-<p class='texte'> Uploadez une photo de vos plantes </p>
 
 <div class='colcontain'>
 <col1 class='col1'>
-<p class='texte'> 35</span> </p>
-<p class='texte'> Uploadez une photo de vos plantes </p>
+<p class='texte'> <span> 16 </span> </p>
+<p class='texte'> maladies reconnus </p>
 
 </col1>
 
 <col1 class='col1'>
-<p class='texte'> <span>35</span> </p>
-<p class='texte'> Uploadez une photo de vos plantes </p>
+<p class='texte'><span> 98%  </span> </p>
+<p class='texte'> de précisions </p>
 </col1>
 
 
 <col1 class='col1'>
-<p class='texte'> <span>35</span> </p>
-<p class='texte'> Uploadez une photo de vos plantes </p>
+<p class='texte'> <span>10</span> </p>
+<p class='texte'> plantes </p>
 </col1>
 </div>
+<p class='texte'> Lorem ipsum dolor sit amet.
+Rem assumenda quasi qui laboriosam blanditiis aut nemo voluptatem aut autem
+natus est ipsa sequi ab consequuntur modi ut earum animi. Id natus expedita
+ea dolores magni est enim explicabo qui facilis totam.
+
+ </p>
+<div class='spacer'></div>
+
+<p class='texte'> Uploadez une photo de vos plantes </p>
+
+<div class='spacer'></div>
+
 </div>
 
 
 <style>
-.logo {
-    background-image:url('logo.png');
+.spacer {
+    height: 2rem;
+    display: block;
     width:100%;
+}
+.col1 span {
+    font-size: 3rem;
 
 }
-.texte {
-    font-family: "Source Sans Pro", sans-serif;
 
+.texte {
+    font-family: 'Playfair Display', serif;
 }
 
 .col1 {
@@ -81,8 +106,9 @@ components.html(
 }
 
 .title  {
+    padding-top: 0 !important;
     font-family: "Source Sans Pro", sans-serif;
-    font-size:4rem;
+    font-size:2rem;
     font-weight: 700;
     color: #3F545B;
     padding: 1.25rem 0px 1rem;
@@ -96,13 +122,25 @@ components.html(
 
 
     """,
-    height=300,
-)
+                height=300)
 
 
 
 CSS = """
 
+
+.logo {
+      display:flex;
+    width: 100%;
+    justify-content:center
+}
+.logo img {
+
+    width:4rem !important;
+    margin:auto;
+
+
+}
 
 .wrap {
     background-color: #fff !important;
@@ -158,18 +196,15 @@ if uploaded_file is not None:
         'channel': channel
     }
     headers = {'Content_Type': 'application/json'}
-    requests.post('https://dummy-gaia-api-ndgviyvkja-ew.a.run.app/predict/',
+    response = requests.post('https://dummy-gaia-api-ndgviyvkja-ew.a.run.app/predict',
                 json.dumps(image_dict),
                 headers=headers)
-    #fastAPI.py POST code to add on VS Code
+
+    st.write(
+
+       str(response.json()) )
 
 
-
-
-
-    st.markdown(
-        'Maybe you want to use your own API for the prediction, not the one provided by Le Wagon...'
-    )
 '''
 
 
