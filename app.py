@@ -1,13 +1,84 @@
+import PIL
 import streamlit as st
 import streamlit.components.v1 as components
 from PIL import Image
 import pathlib as Path
+import pandas as pd
+import time
+
 
 #upload image
 import numpy as np
 import base64
 import requests
 import json
+
+CSS = """
+    .stImage img{
+        display: inline-block;
+    }
+        .popup {
+        width: 40%;
+        margin: 0 auto;
+        background: #000;
+        padding: 35px;
+        border: 2px solid #fff;
+        border-radius: 20px/50px;
+        background-clip: padding-box;
+        text-align: center;
+        }
+
+
+
+        .overlay:target {
+
+        }
+
+
+
+
+        .block-container {
+            background-color: #fff !important;
+        }
+        .css-qrbaxs {
+            display: none;
+        }
+
+        .logo {
+            display:flex;
+            width: 100%;
+            justify-content:center
+        }
+        .logo img {
+
+            width:5rem !important;
+            margin:auto;
+
+
+        }
+
+
+
+
+        body {
+            color: #CEE5D0 !important;
+
+
+        }
+
+
+        .stApp {
+        # background: #CEE5D0 !important;
+        background-color:  #004029!important;
+
+
+        }
+
+
+"""
+
+st.write(f'<style>{CSS}</style>', unsafe_allow_html=True)
+
 
 
 file_ = open("logo.png", "rb")
@@ -141,48 +212,6 @@ ea dolores magni est enim explicabo qui facilis totam.
 
 
 
-CSS = """
-
-.block-container {
-    background-color: #fff !important;
-}
-.css-qrbaxs {
-    display: none;
-}
-
-.logo {
-      display:flex;
-    width: 100%;
-    justify-content:center
-}
-.logo img {
-
-    width:5rem !important;
-    margin:auto;
-
-
-}
-
-
-
-
-body {
-    color: #CEE5D0 !important;
-
-
-}
-
-
-.stApp {
-   # background: #CEE5D0 !important;
-       background-color:  #004029!important;
-
-
-}
-
-"""
-
-st.write(f'<style>{CSS}</style>', unsafe_allow_html=True)
 
 
 
@@ -194,11 +223,13 @@ uploaded_file = st.file_uploader("", type=['png','jpeg','jpg'])
 
 
 if uploaded_file is not None:
+
     #open image and convert to RGB
     test_pic = Image.open(
         uploaded_file
     ).convert('RGB')
     #turn to array
+    test_pic = test_pic.resize((256,256))
     test_pic_array = np.array(test_pic)
     #switch to U-Int 8
     test_pic_array = test_pic_array.astype('uint8')
@@ -217,16 +248,65 @@ if uploaded_file is not None:
         'channel': channel
     }
     headers = {'Content_Type': 'application/json'}
-    response = requests.post('https://dummy-gaia-api-ndgviyvkja-ew.a.run.app/predict',
-                json.dumps(image_dict),
-                headers=headers)
+    newjson = json.dumps(image_dict)
+    response = requests.post('https://dummy-gaia-api-ndgviyvkja-ew.a.run.app/predict_grad_cam',
+        newjson,
+        headers=headers).json()
 
-    st.write(
-
-       str(response.json()) )
-
-
-'''
+    decoded = base64.b64decode(bytes(response['image'], 'utf-8'))
+    decoded = np.frombuffer(decoded, dtype='float32')
+    decoded = decoded.reshape(response['height'], response['width'], response['channel'])
+    decoded = decoded.astype('uint8')
 
 
-'''
+    dico = {
+        'Tomato':'tomate',
+        'Potato':'patate',
+        'Strawberry':'fraise',
+        'Squash': 'courgette',
+        'Soybean': 'soja',
+        'Raspberry': 'framboise',
+        'Pepper,': 'poivron',
+        'Peach': 'pêche',
+        'Orange': 'orange',
+        'Grape': 'raisin',
+        'Corn': 'maïs',
+        'Cherry': 'cerise',
+        'Blueberry': 'myrtille',
+        'Apple': 'pomme' }
+
+    fr = dico[response['class'].split('_')[0]]
+    maladie = ' '.join(response['class'].split('_')[3:])
+
+    if str('healthy') in str(response['class']).split('_') :
+        components.html(f"""
+        <div class='popup'>
+
+        <div style='font-family: "Open Sans", sans-serif; color : #004029;
+        font-size:2rem;'>La plante est <span style='color:green;'>saine.</span><br/>
+        Il s'agit d'une feuille de {fr}.
+        </div>
+        </div>
+               """)
+    else:
+        components.html(f"""
+        <div class='popup'>
+        <div style='font-family: "Open Sans", sans-serif; color : #004029;
+        font-size:2rem;'>La plante est <span style='color:red;'>infectée.</span>
+        Il s'agit d'une feuille de {fr}, infectée par le <span style='color:red;'>{maladie}.</span>
+        </div></div>
+        """,
+                        height=100)
+        col1, col2 = st.columns(2)
+
+        col1.header("Zones inféctées")
+        col1.image(decoded, use_column_width=True)
+
+        col2.header("Image originale")
+        col2.image(test_pic, use_column_width=True)
+
+
+
+
+
+    st.write(str(response['class']))
