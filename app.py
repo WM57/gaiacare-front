@@ -29,8 +29,10 @@ components.html("""
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap" rel="stylesheet">
 
 <h1 class="title">GaïaCare</h1>
+<div class='spacer'></div>
 
-<div class='wrap' style='background:#fff;'>
+<div class='wrap'>
+
 
 
 <div class='colcontain'>
@@ -51,29 +53,33 @@ components.html("""
 <p class='texte'> plantes </p>
 </col1>
 </div>
+
+<div class='spacer'></div>
+
+
 <p class='texte'> Lorem ipsum dolor sit amet.
 Rem assumenda quasi qui laboriosam blanditiis aut nemo voluptatem aut autem
 natus est ipsa sequi ab consequuntur modi ut earum animi. Id natus expedita
 ea dolores magni est enim explicabo qui facilis totam.
 
  </p>
-<div class='spacer'></div>
 
 <p class='texte'> Uploadez une photo de vos plantes </p>
 
 <div class='spacer'></div>
 
-</div>
 
+</div>
+</div>
 
 <style>
 .spacer {
-    height: 2rem;
+    height: 1.5rem;
     display: block;
     width:100%;
 }
 .col1 span {
-    font-size: 3rem;
+    font-size: 2rem;
 
 }
 
@@ -89,7 +95,7 @@ ea dolores magni est enim explicabo qui facilis totam.
 }
 
 .item + .item {
-      margin-left: 2%;
+      margin-left: 4%;
 
 }
 .colcontain {
@@ -97,24 +103,33 @@ ea dolores magni est enim explicabo qui facilis totam.
 
 }
 
+
 .wrap {
-    background-color: #fff !important;
-    border-radius: 5px;
-    color: #3F545B;
+    #background-color:  #004029!important;
+    background-color: #e7fee0 !important;
+    max-width:90%;
+    margin: auto;
+    border-radius: 0.3rem;
+    color: #004029;
     text-align: center;
+
 
 }
 
+
+
 .title  {
     padding-top: 0 !important;
-    font-family: "Source Sans Pro", sans-serif;
-    font-size:2rem;
-    font-weight: 700;
+    font-family: "Open Sans", sans-serif;
+    font-size:3rem;
+    font-weight: 500;
     color: #3F545B;
     padding: 1.25rem 0px 1rem;
     margin: 0px;
     line-height: 1.4;
     text-align:center;
+    letter-spacing:0.2rem;
+
     }
 
 </style>
@@ -122,12 +137,18 @@ ea dolores magni est enim explicabo qui facilis totam.
 
 
     """,
-                height=300)
+                height=450)
 
 
 
 CSS = """
 
+.block-container {
+    background-color: #fff !important;
+}
+.css-qrbaxs {
+    display: none;
+}
 
 .logo {
       display:flex;
@@ -136,15 +157,13 @@ CSS = """
 }
 .logo img {
 
-    width:4rem !important;
+    width:5rem !important;
     margin:auto;
 
 
 }
 
-.wrap {
-    background-color: #fff !important;
-}
+
 
 
 body {
@@ -155,7 +174,9 @@ body {
 
 
 .stApp {
-    background: #CEE5D0 !important;
+   # background: #CEE5D0 !important;
+       background-color:  #004029!important;
+
 
 }
 
