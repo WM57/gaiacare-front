@@ -1,4 +1,3 @@
-from types import LambdaType
 from tensorflow.keras import Input, Model, models
 from tensorflow import argmax, GradientTape, reduce_mean
 from tensorflow.keras.utils import array_to_img, img_to_array
