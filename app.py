@@ -1,13 +1,115 @@
+
+import PIL
+
 import streamlit as st
 import streamlit.components.v1 as components
 from PIL import Image
 import pathlib as Path
 
-#upload image
+import pandas as pd
+import time
+
 import numpy as np
 import base64
 import requests
 import json
+
+CSS = """
+
+    .exg6vvm0 {
+    font-family: 'Playfair Display', serif;
+    width: 80%;
+    margin: auto;
+
+
+    }
+
+    .stImage img{
+        display: inline-block;
+    }
+        .popup {
+        width: 40%;
+        margin: 0 auto;
+        background: #000;
+        padding: 35px;
+        border: 2px solid #fff;
+        border-radius: 20px/50px;
+        background-clip: padding-box;
+        text-align: center;
+        }
+
+
+
+        .overlay:target {
+
+        }
+
+
+
+
+        .block-container {
+            background-color: #fff !important;
+            padding-top: 2rem !important;
+            margin-top : 4rem;
+            margin-bottom : 2rem;
+
+            border-radius: 0.2rem;
+        }
+        .css-qrbaxs {
+            display: none;
+        }
+
+        .logo {
+            display:flex;
+            width: 100%;
+            justify-content:center
+        }
+        .logo img {
+
+            width:5rem !important;
+            margin:auto;
+
+
+        }
+
+    .css-fis6aj {
+        display: none;
+    }
+
+
+        body {
+            color: #CEE5D0 !important;
+
+
+        }
+
+
+        .stApp {
+        # background: #CEE5D0 !important;
+        # background-color:  #004029!important;
+        background-color: #3F545B;
+
+
+        }
+
+
+"""
+
+st.write(f'<style>{CSS}</style>', unsafe_allow_html=True)
+
+
+
+file_ = open("logo.png", "rb")
+contents = file_.read()
+logo_url = base64.b64encode(contents).decode("utf-8")
+file_.close()
+
+st.markdown(
+    f'<div class="clogo"><div class="logo"><img src="data:image/png;base64,{logo_url}"></div></div>',
+    unsafe_allow_html=True,
+)
+
+
 
 
 components.html("""
@@ -94,11 +196,14 @@ ea dolores magni est enim explicabo qui facilis totam.
 
 .wrap {
     #background-color:  #004029!important;
-    background-color: #e7fee0 !important;
+
+    #background-color: #e7fee0 !important;
+    background-color: rgba(143, 193, 180, 0.4);
     max-width:90%;
     margin: auto;
     border-radius: 0.3rem;
-    color: #004029;
+    color: #3F545B;
+
     text-align: center;
 
 
@@ -127,14 +232,27 @@ ea dolores magni est enim explicabo qui facilis totam.
     """,
                 height=450)
 
+
+
+
+
+
+
+
 st.set_option('deprecation.showfileUploaderEncoding', False)
 
-uploaded_file = st.file_uploader("", type=['png', 'jpeg', 'jpg'])
+uploaded_file = st.file_uploader("", type=['png','jpeg','jpg'])
+
 
 if uploaded_file is not None:
+
     #open image and convert to RGB
-    test_pic = Image.open(uploaded_file).convert('RGB')
+    test_pic = Image.open(
+        uploaded_file
+    ).convert('RGB')
     #turn to array
+    test_pic = test_pic.resize((256,256))
+
     test_pic_array = np.array(test_pic)
     #switch to U-Int 8
     test_pic_array = test_pic_array.astype('uint8')
@@ -153,121 +271,73 @@ if uploaded_file is not None:
         'channel': channel
     }
     headers = {'Content_Type': 'application/json'}
-    response = requests.post('http://0.0.0.0:8000/predict_grad_cam',
-                             json.dumps(image_dict),
-                             headers=headers)
-    if 'Healthy' in str(response.json()):
-        components.html("""
 
-    <div style='color:green; font-family: "Open Sans", sans-serif;
-    font-size:3rem;'>La plante est seine </div>
+    newjson = json.dumps(image_dict)
+    response = requests.post('https://dummy-gaia-api-ndgviyvkja-ew.a.run.app/predict_grad_cam',
+        newjson,
+        headers=headers).json()
+
+    decoded = base64.b64decode(bytes(response['image'], 'utf-8'))
+    decoded = np.frombuffer(decoded, dtype='float32')
+    decoded = decoded.reshape(response['height'], response['width'], response['channel'])
+    decoded = decoded.astype('uint8')
 
 
+    dico = {
+        'Tomato':'tomate',
+        'Potato':'patate',
+        'Strawberry':'fraise',
+        'Squash': 'courgette',
+        'Soybean': 'soja',
+        'Raspberry': 'framboise',
+        'Pepper,': 'poivron',
+        'Peach': 'pêche',
+        'Orange': 'orange',
+        'Grape': 'raisin',
+        'Corn': 'maïs',
+        'Cherry': 'cerise',
+        'Blueberry': 'myrtille',
+        'Apple': 'pomme' }
 
+    fr = dico[response['class'].split('_')[0]]
+    maladie = ' '.join(response['class'].split('_')[3:])
 
+    if str('healthy') in str(response['class']).split('_') :
+        components.html(f"""
+        <div class='popup'>
+
+        <div style='font-family: "Playfair Display", serif;color: #3F545B;text-align:center;font-size:1.5rem;'>La plante est <span style='color:green;'>saine.</span><br/>
+        Il s'agit d'une feuille de {fr}.
+        </div>
+        </div>
                """)
 
-    st.write(response.json())
+        st.markdown(
+            "<div style='font-family: Playfair Display, serif;color: #3F545B;text-align:center;;'>Image originale</div>",
+            unsafe_allow_html=True)
+        st.image(test_pic, use_column_width=True)
 
-components.html("""
+    else:
+        components.html(f"""
+        <div class='popup'>
+        <div style='font-family: "Playfair Display", serif;color: #3F545B;text-align:center;font-size:1.5rem;'>La plante est <span style='color:red;'>infectée.</span>
+        Il s'agit d'une feuille de {fr}, infectée par le <span style='color:red;'>{maladie}.</span>
+        </div></div>
+        """,
+                        height=100)
+        col1, col2 = st.columns(2)
 
-    <div style='color:green; font-family: "Open Sans", sans-serif;
-    font-size:3rem;'>La plante est seine </div>
+        col1.markdown("<div style='font-family: Playfair Display, serif;color: #3F545B;text-align:center;font-size:1.5;'>Zones infectées</div>", unsafe_allow_html=True)
+        col1.image(decoded, use_column_width=True)
 
-
-
-               """)
-
-components.html("""
-
-    <div class='popup'>
-    <div style='color:green; font-family: "Open Sans", sans-serif;
-    font-size:3rem;'>Il s'agit d'une {} </div></div>
-
-
-    <style>
-
-    .popup {
-  width: 40%;
-  margin: 0 auto;
-  background: #fff;
-  padding: 35px;
-  border: 2px solid #fff;
-  border-radius: 20px/50px;
-  background-clip: padding-box;
-  text-align: center;
-}
-
-
-.overlay {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(0, 0, 0, 0.7);
-  visibility: hidden;
-    visibility: visible;
-  opacity: 1;
-}
-.overlay:target {
-
-}
+        col2.markdown(
+            "<div style='font-family: Playfair Display, serif;color: #3F545B;text-align:center;font-size:1.5;'>Image originale</div>",
+            unsafe_allow_html=True)
+        col2.image(test_pic, use_column_width=True)
 
 
 
 
 
-    </style>
+    st.write(str(response['class']))
 
-
-               """)
-
-CSS = """
-
-
-.block-container {
-    background-color: #fff !important;
-}
-.css-qrbaxs {
-    display: none;
-}
-
-.logo {
-      display:flex;
-    width: 100%;
-    justify-content:center
-}
-.logo img {
-
-    width:5rem !important;
-    margin:auto;
-
-
-}
-
-
-
-
-body {
-    color: #CEE5D0 !important;
-
-
-}
-
-
-.stApp {
-   # background: #CEE5D0 !important;
-       background-color:  #004029!important;
-
-
-}
-
-
-"""
-
-st.write(f'<style>{CSS}</style>', unsafe_allow_html=True)
-'''
-
-
-'''
