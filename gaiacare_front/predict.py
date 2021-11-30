@@ -1,3 +1,4 @@
+from types import LambdaType
 from tensorflow.keras import Input, Model, models
 from tensorflow import argmax, GradientTape, reduce_mean
 from tensorflow.keras.utils import array_to_img, img_to_array
@@ -60,9 +61,14 @@ class Predict():
         heatmap = np.mean(last_conv_layer_output, axis=-1)
         heatmap = np.maximum(heatmap, 0)
         heatmap /= np.max(heatmap)
+        
+        #remove below .5
+        heatmap_zero = np.where(heatmap < 0.5)
+        heatmap[heatmap_zero] = 0
+        
         heatmap = np.uint8(255 * heatmap)
 
-        jet = cm.get_cmap("jet")
+        jet = cm.get_cmap("Reds")
         jet_colors = jet(np.arange(256))[:, :3]
         jet_heatmap = jet_colors[heatmap]
 
@@ -70,6 +76,6 @@ class Predict():
         jet_heatmap = jet_heatmap.resize((img_array.shape[1], img_array.shape[0]))
         jet_heatmap = img_to_array(jet_heatmap)
 
-        superimposed_array_img = jet_heatmap * 0.4 + img_array
+        superimposed_array_img = jet_heatmap * 1 + img_array
 
         return superimposed_array_img
