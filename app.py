@@ -5,15 +5,21 @@ from PIL import Image
 import pathlib as Path
 import pandas as pd
 import time
-
-
-#upload image
 import numpy as np
 import base64
 import requests
 import json
 
 CSS = """
+
+    .exg6vvm0 {
+    font-family: 'Playfair Display', serif;
+    width: 80%;
+    margin: auto;
+
+
+    }
+
     .stImage img{
         display: inline-block;
     }
@@ -39,6 +45,11 @@ CSS = """
 
         .block-container {
             background-color: #fff !important;
+            padding-top: 2rem !important;
+            margin-top : 4rem;
+            margin-bottom : 2rem;
+
+            border-radius: 0.2rem;
         }
         .css-qrbaxs {
             display: none;
@@ -57,7 +68,9 @@ CSS = """
 
         }
 
-
+    .css-fis6aj {
+        display: none;
+    }
 
 
         body {
@@ -69,7 +82,8 @@ CSS = """
 
         .stApp {
         # background: #CEE5D0 !important;
-        background-color:  #004029!important;
+        # background-color:  #004029!important;
+        background-color: #3F545B;
 
 
         }
@@ -177,11 +191,12 @@ ea dolores magni est enim explicabo qui facilis totam.
 
 .wrap {
     #background-color:  #004029!important;
-    background-color: #e7fee0 !important;
+    #background-color: #e7fee0 !important;
+    background-color: rgba(143, 193, 180, 0.4);
     max-width:90%;
     margin: auto;
     border-radius: 0.3rem;
-    color: #004029;
+    color: #3F545B;
     text-align: center;
 
 
@@ -282,27 +297,33 @@ if uploaded_file is not None:
         components.html(f"""
         <div class='popup'>
 
-        <div style='font-family: "Open Sans", sans-serif; color : #004029;
-        font-size:2rem;'>La plante est <span style='color:green;'>saine.</span><br/>
+        <div style='font-family: "Playfair Display", serif;color: #3F545B;text-align:center;font-size:1.5rem;'>La plante est <span style='color:green;'>saine.</span><br/>
         Il s'agit d'une feuille de {fr}.
         </div>
         </div>
                """)
+
+        st.markdown(
+            "<div style='font-family: Playfair Display, serif;color: #3F545B;text-align:center;;'>Image originale</div>",
+            unsafe_allow_html=True)
+        st.image(test_pic, use_column_width=True)
+
     else:
         components.html(f"""
         <div class='popup'>
-        <div style='font-family: "Open Sans", sans-serif; color : #004029;
-        font-size:2rem;'>La plante est <span style='color:red;'>infectée.</span>
+        <div style='font-family: "Playfair Display", serif;color: #3F545B;text-align:center;font-size:1.5rem;'>La plante est <span style='color:red;'>infectée.</span>
         Il s'agit d'une feuille de {fr}, infectée par le <span style='color:red;'>{maladie}.</span>
         </div></div>
         """,
                         height=100)
         col1, col2 = st.columns(2)
 
-        col1.header("Zones inféctées")
+        col1.markdown("<div style='font-family: Playfair Display, serif;color: #3F545B;text-align:center;font-size:1.5;'>Zones infectées</div>", unsafe_allow_html=True)
         col1.image(decoded, use_column_width=True)
 
-        col2.header("Image originale")
+        col2.markdown(
+            "<div style='font-family: Playfair Display, serif;color: #3F545B;text-align:center;font-size:1.5;'>Image originale</div>",
+            unsafe_allow_html=True)
         col2.image(test_pic, use_column_width=True)
 
 
