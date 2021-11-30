@@ -1,10 +1,14 @@
+
 import PIL
+
 import streamlit as st
 import streamlit.components.v1 as components
 from PIL import Image
 import pathlib as Path
+
 import pandas as pd
 import time
+
 import numpy as np
 import base64
 import requests
@@ -107,6 +111,7 @@ st.markdown(
 
 
 
+
 components.html("""
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -191,12 +196,14 @@ ea dolores magni est enim explicabo qui facilis totam.
 
 .wrap {
     #background-color:  #004029!important;
+
     #background-color: #e7fee0 !important;
     background-color: rgba(143, 193, 180, 0.4);
     max-width:90%;
     margin: auto;
     border-radius: 0.3rem;
     color: #3F545B;
+
     text-align: center;
 
 
@@ -245,6 +252,7 @@ if uploaded_file is not None:
     ).convert('RGB')
     #turn to array
     test_pic = test_pic.resize((256,256))
+
     test_pic_array = np.array(test_pic)
     #switch to U-Int 8
     test_pic_array = test_pic_array.astype('uint8')
@@ -263,6 +271,7 @@ if uploaded_file is not None:
         'channel': channel
     }
     headers = {'Content_Type': 'application/json'}
+
     newjson = json.dumps(image_dict)
     response = requests.post('https://dummy-gaia-api-ndgviyvkja-ew.a.run.app/predict_grad_cam',
         newjson,
@@ -331,3 +340,4 @@ if uploaded_file is not None:
 
 
     st.write(str(response['class']))
+
