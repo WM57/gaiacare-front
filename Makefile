@@ -78,3 +78,6 @@ push_docker:
 
 deploy_docker:
 	@gcloud run deploy --image ${GCR_MULTI_REGION}/${GCP_PROJECT_ID}/${DOCKER_IMAGE_NAME} --platform managed --region ${GCR_REGION} --memory '4Gi'
+
+streamlit:
+	-@streamlit run app.py

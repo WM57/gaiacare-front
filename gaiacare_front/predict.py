@@ -22,15 +22,15 @@ class Predict():
         pred = self.model.predict(batch_img)
 
         return class_name[class_number.index(np.argmax(pred))]
-    
+
     def predict_grad_cam(self, img_array):
         preproc_img = preprocess_input(img_array)
-        
+
         # Setting up a model that returns the last convolutional output
         last_conv_layer = self.model.layers[0].get_layer('block5_conv3')
         classifier_layer_names = ["avg_pool", "predictions"]
         last_conv_layer_model = Model(self.model.layers[0].inputs, last_conv_layer.output)
-        
+
         # Reapplying the classifier on top of the last convolutional output
         classifier_input = Input(shape=last_conv_layer.output.shape[1:])
         x = classifier_input
@@ -38,7 +38,7 @@ class Predict():
         for layer_name in classifier_layer_names:
             x = self.model.get_layer(layer_name)(x)
         classifier_model =  Model(classifier_input, x)
-        
+
         # Retrieving the gradients of the top predicted class
         with GradientTape() as tape:
             last_conv_layer_output = last_conv_layer_model(np.expand_dims(preproc_img, axis=0))
@@ -46,16 +46,16 @@ class Predict():
             preds = classifier_model(last_conv_layer_output)
             top_pred_index = argmax(preds[0])
             top_class_channel = preds[:, top_pred_index]
-        
+
         grads = tape.gradient(top_class_channel, last_conv_layer_output)
-        
+
         # Gradient pooling and channel-importance weighting
         pooled_grads = reduce_mean(grads, axis=(0, 1, 2)).numpy()
         last_conv_layer_output = last_conv_layer_output.numpy()[0]
-        
+
         for i in range(pooled_grads.shape[-1]):
             last_conv_layer_output[:, :, i] *= pooled_grads[i]
-        
+
         # Heatmap post-processing
         heatmap = np.mean(last_conv_layer_output, axis=-1)
         heatmap = np.maximum(heatmap, 0)
@@ -71,5 +71,5 @@ class Predict():
         jet_heatmap = img_to_array(jet_heatmap)
 
         superimposed_array_img = jet_heatmap * 0.4 + img_array
-        
+
         return superimposed_array_img
