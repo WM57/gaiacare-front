@@ -37,39 +37,3 @@ def predict_class(Img: Image):
     print(prediction)
     return prediction
 
-
-'''@app.post("/uploadfile/")
-async def root(file: UploadFile = File(...)):
-    with open(f'{file.filename}',"wb") as buffer:
-        shutil.copyfileobj(file.file,buffer)
-
-    return '''
-
-
-@app.post("/uploadfile")
-async def create_upload_file(file: bytes = File(...)):
-
-    #print("\nreceived file:")
-    #print(type(file))
-    #print(file)
-
-    #image_path = "image_api.png"
-    predictor = Predict(file, model)
-
-    # write file to disk
-    #with open(image_path, "wb") as f:
-    #f.write(file)
-
-    predictor.decode_image(224, 224)  # for VGG specs!
-    result = predictor.get_prediction()
-
-    movements = {
-        predictor.class_names[i]: result[0][i]
-        for i in range(len(result[0]))
-    }
-    print(type(movements))
-    # main_movement =  predictor.class_names[np.argmax(result[0])]
-    # model -> pred
-    # dict(pred=str(main_movement))
-
-    return dict(pred=str(movements))

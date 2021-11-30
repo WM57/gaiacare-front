@@ -56,3 +56,25 @@ pypi:
 
 run_api:
 	uvicorn api.fast:app --reload  # load web server with code autoreload
+
+
+# ----------------------------------
+#      GCP API DEPLOY
+# ----------------------------------
+
+GCP_PROJECT_ID=warm-skill-328010
+DOCKER_IMAGE_NAME=dummy-gaia-api
+GCR_MULTI_REGION=eu.gcr.io
+GCR_REGION=europe-west1
+
+build_docker:
+	@docker build -t ${GCR_MULTI_REGION}/${GCP_PROJECT_ID}/${DOCKER_IMAGE_NAME} .
+
+run_locally:
+	@docker run -e PORT=8000 -p 8000:8000 ${GCR_MULTI_REGION}/${GCP_PROJECT_ID}/${DOCKER_IMAGE_NAME}
+
+push_docker:
+	@docker push ${GCR_MULTI_REGION}/${GCP_PROJECT_ID}/${DOCKER_IMAGE_NAME}
+
+deploy_docker:
+	@gcloud run deploy --image ${GCR_MULTI_REGION}/${GCP_PROJECT_ID}/${DOCKER_IMAGE_NAME} --platform managed --region ${GCR_REGION} --memory '4Gi'
