@@ -9,15 +9,15 @@ import requests
 import json
 from gaiacare_front.predict import Predict
 from tensorflow.keras.models import load_model
+from tensorflow.keras.utils import array_to_img
 
-#@st.cache(allow_output_mutation=True)
+@st.cache(allow_output_mutation=True)
 def retrieve_model():
-    PATH_MODEL = 'gaiacare_front/models/solution1_800-1000_no_datagen'
+    PATH_MODEL = 'h5_fabien_vgg16_solution1_800-1000v2.h5'
     model = load_model(PATH_MODEL)
     return model
 
-PATH_MODEL = 'gaiacare_front/models/solution1_800-1000_no_datagen'
-model = load_model(PATH_MODEL)
+model = retrieve_model()
 #model = retrieve_model()
 
 CSS = """
@@ -293,7 +293,7 @@ if uploaded_file is not None:
 
     #predict
     predictor = Predict(model)
-    prediction = predictor.predict_grad_cam(test_pic_array).astype('uint8')
+    prediction = array_to_img(predictor.predict_grad_cam(test_pic_array))
     predicted_class = predictor.predict_class(test_pic_array)
     print(prediction)
 
