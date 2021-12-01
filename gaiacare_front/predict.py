@@ -8,10 +8,11 @@ import matplotlib.cm as cm
 
 class Predict():
     def __init__(self,
-                 model = 'gaiacare_front/models/solution1_800-1000_no_datagen',
-                 class_index = 'gaiacare_front/models/class.csv'):
+                 model,
+                 class_index='gaiacare_front/class.csv',
+                 ):
 
-        self.model = models.load_model(model)
+        self.model = model
         self.class_index = pd.read_csv(class_index).set_index('index').to_dict()['class']
 
     def predict_class(self, img_array):
@@ -60,11 +61,11 @@ class Predict():
         heatmap = np.mean(last_conv_layer_output, axis=-1)
         heatmap = np.maximum(heatmap, 0)
         heatmap /= np.max(heatmap)
-        
+
         #remove below .5
         heatmap_zero = np.where(heatmap < 0.5)
         heatmap[heatmap_zero] = 0
-        
+
         heatmap = np.uint8(255 * heatmap)
 
         jet = cm.get_cmap("Reds")
@@ -76,5 +77,4 @@ class Predict():
         jet_heatmap = img_to_array(jet_heatmap)
 
         superimposed_array_img = jet_heatmap * 1 + img_array
-
         return superimposed_array_img

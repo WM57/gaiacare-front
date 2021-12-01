@@ -1,18 +1,24 @@
-
-import PIL
-
 import streamlit as st
 import streamlit.components.v1 as components
 from PIL import Image
 import pathlib as Path
-
-import pandas as pd
 import time
-
 import numpy as np
 import base64
 import requests
 import json
+from gaiacare_front.predict import Predict
+from tensorflow.keras.models import load_model
+
+#@st.cache(allow_output_mutation=True)
+def retrieve_model():
+    PATH_MODEL = 'gaiacare_front/models/solution1_800-1000_no_datagen'
+    model = load_model(PATH_MODEL)
+    return model
+
+PATH_MODEL = 'gaiacare_front/models/solution1_800-1000_no_datagen'
+model = load_model(PATH_MODEL)
+#model = retrieve_model()
 
 CSS = """
 
@@ -255,32 +261,41 @@ if uploaded_file is not None:
 
     test_pic_array = np.array(test_pic)
     #switch to U-Int 8
-    test_pic_array = test_pic_array.astype('uint8')
+    #test_pic_array = test_pic_array.astype('uint8')
     #memorizing shape
-    height, width, channel = test_pic_array.shape
+    #height, width, channel = test_pic_array.shape
     #reshape
-    test_pic_array = test_pic_array.reshape(height * width * channel)
+    #test_pic_array = test_pic_array.reshape(height * width * channel)
     # encoding to b64
-    b64bytes = base64.b64encode(test_pic_array)
+    #b64bytes = base64.b64encode(test_pic_array)
     #decoding to utf8 and turning to  string
-    b64str = b64bytes.decode('utf8').replace("'", '"')
-    image_dict = {
-        'image': b64str,
-        'height': height,
-        'width': width,
-        'channel': channel
-    }
-    headers = {'Content_Type': 'application/json'}
+    #b64str = b64bytes.decode('utf8').replace("'", '"')
+    #image_dict = {
+    #    'image': b64str,
+    #    'height': height,
+    #    'width': width,
+    #    'channel': channel
+    #}
+    #headers = {'Content_Type': 'application/json'}
 
-    newjson = json.dumps(image_dict)
-    response = requests.post('https://dummy-gaia-api-ndgviyvkja-ew.a.run.app/predict_grad_cam',
-        newjson,
-        headers=headers).json()
+    #newjson = json.dumps(image_dict)
+    #response = requests.post('https://dummy-gaia-api-ndgviyvkja-ew.a.run.app/predict_grad_cam',
+    #    newjson,
+    #    headers=headers).json()
 
-    decoded = base64.b64decode(bytes(response['image'], 'utf-8'))
-    decoded = np.frombuffer(decoded, dtype='float32')
-    decoded = decoded.reshape(response['height'], response['width'], response['channel'])
-    decoded = decoded.astype('uint8')
+    #decoded = base64.b64decode(bytes(response['image'], 'utf-8'))
+    #decoded = np.frombuffer(decoded, dtype='float32')
+    #decoded = decoded.reshape(response['height'], response['width'], response['channel'])
+    #decoded = decoded.astype('uint8')
+    #model = tf.keras.models.load_model('h5_fabien_vgg16_solution1_800-1000.h5')
+
+
+
+    #predict
+    predictor = Predict(model)
+    prediction = predictor.predict_grad_cam(test_pic_array).astype('uint8')
+    predicted_class = predictor.predict_class(test_pic_array)
+    print(prediction)
 
 
     dico = {
@@ -299,10 +314,10 @@ if uploaded_file is not None:
         'Blueberry': 'myrtille',
         'Apple': 'pomme' }
 
-    fr = dico[response['class'].split('_')[0]]
-    maladie = ' '.join(response['class'].split('_')[3:])
+    fr = dico[predicted_class.split('_')[0]]
+    maladie = ' '.join(predicted_class.split('_')[3:])
 
-    if str('healthy') in str(response['class']).split('_') :
+    if str('healthy') in str(predicted_class).split('_'):
         components.html(f"""
         <div class='popup'>
 
@@ -328,7 +343,7 @@ if uploaded_file is not None:
         col1, col2 = st.columns(2)
 
         col1.markdown("<div style='font-family: Playfair Display, serif;color: #3F545B;text-align:center;font-size:1.5;'>Zones infectées</div>", unsafe_allow_html=True)
-        col1.image(decoded, use_column_width=True)
+        col1.image(prediction, use_column_width=True)
 
         col2.markdown(
             "<div style='font-family: Playfair Display, serif;color: #3F545B;text-align:center;font-size:1.5;'>Image originale</div>",
@@ -339,5 +354,4 @@ if uploaded_file is not None:
 
 
 
-    st.write(str(response['class']))
-
+    st.write(str(predicted_class))
