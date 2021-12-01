@@ -13,7 +13,7 @@ from tensorflow.keras.utils import array_to_img
 
 @st.cache(allow_output_mutation=True)
 def retrieve_model():
-    PATH_MODEL = 'h5_fabien_vgg16_solution1_800-1000v2.h5'
+    PATH_MODEL = 'walid_VGG16-lr0-0001_datagen.h5'
     model = load_model(PATH_MODEL)
     return model
 

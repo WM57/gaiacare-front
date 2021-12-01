@@ -29,7 +29,7 @@ class Predict():
 
         # Setting up a model that returns the last convolutional output
         last_conv_layer = self.model.layers[0].get_layer('block5_conv3')
-        classifier_layer_names = ["avg_pool", "predictions"]
+        classifier_layer_names = ["global_average_pooling2d", "dense"]
         last_conv_layer_model = Model(self.model.layers[0].inputs, last_conv_layer.output)
 
         # Reapplying the classifier on top of the last convolutional output
