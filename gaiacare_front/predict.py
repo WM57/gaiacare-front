@@ -61,6 +61,12 @@ class Predict():
         heatmap = np.mean(last_conv_layer_output, axis=-1)
         heatmap = np.maximum(heatmap, 0)
         heatmap /= np.max(heatmap)
+        
+        #remove border
+        heatmap[:2,:] = 0
+        heatmap[-2:,:] = 0
+        heatmap[:,:2] = 0
+        heatmap[:,-2:] = 0
 
         #remove below .5
         heatmap_zero = np.where(heatmap < 0.5)
