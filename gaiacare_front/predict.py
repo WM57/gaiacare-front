@@ -73,3 +73,9 @@ class Predict():
         superimposed_array_img = jet_heatmap * 0.4 + img_array
 
         return superimposed_array_img
+
+    def predict_segmentation(self):
+        pass
+
+    def predict_combinaison(self):
+        pass
