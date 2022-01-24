@@ -1,4 +1,5 @@
 # Plant diseases, Python Tensorflow, Deep Learning computer vision
 - Using Deep Learning for Image-Based Plant Disease Detection
+- Convolutional Neural Networks (CNN)
 - Segmentation model : find leaf subpictures from plant pictures.
 - Grad Cam Method, Sailency Map : Find where is the infection at leaf scale.
